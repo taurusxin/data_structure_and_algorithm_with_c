@@ -25,8 +25,17 @@ _Bool insertList(Node head, E element, int index) {
     Node node = malloc(sizeof(struct ListNode));
     if (node == NULL) return 0;
     node->element = element;
-    node->next = head->next;
+
+    if (head->next) {  // 只有新节点不在最后才执行
+        node->next = head->next;
+        head->next->prev = node;
+    } else {
+        node->next = NULL;
+    }
+
     head->next = node;
+    node->prev = head;
+
     return 1;
 }
 
@@ -39,7 +48,12 @@ _Bool deleteList(Node head, int index) {
     if (head->next == NULL) return 0;
 
     Node tmp = head->next;
-    head->next = head->next->next;
+    if (head->next->next) {
+        head->next->next->prev = head;
+        head->next = head->next->next;
+    } else {
+        head->next = NULL;
+    }
     free(tmp);
 
     return 1;
@@ -86,13 +100,17 @@ int main() {
     struct ListNode head;
     initList(&head);
 
-    for (int i = 1; i <= 3; ++i) {
+    for (int i = 1; i <= 5; ++i) {
         insertList(&head, i * 100, i);
     }
 
     printList(&head);
 
-    printf("%d", findList(&head, 200));
+    printf("%d\n", findList(&head, 200));
+
+    deleteList(&head, 5);
+
+    printList(&head);
 
     return 0;
 }
